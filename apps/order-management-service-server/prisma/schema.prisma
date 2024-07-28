@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model EInvoice {
+  createdAt     DateTime  @default(now())
+  file          Json?
+  id            String    @id @default(cuid())
+  invoiceNumber String?
+  issueDate     DateTime?
+  order         Order?    @relation(fields: [orderId], references: [id])
+  orderId       String?
+  updatedAt     DateTime  @updatedAt
+}
+
+model Supplier {
+  contactEmail String?
+  contactName  String?
+  contactPhone String?
+  createdAt    DateTime @default(now())
+  id           String   @id @default(cuid())
+  orders       Order[]
+  supplierName String?
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  createdAt   DateTime @default(now())
+  discount    Float?
+  id          String   @id @default(cuid())
+  order       Order?   @relation(fields: [orderId], references: [id])
+  orderId     String?
+  price       Float?
+  productCode String?
+  productName String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  createdAt   DateTime         @default(now())
+  eInvoices   EInvoice[]
+  id          String           @id @default(cuid())
+  orderDate   DateTime?
+  orderNumber String?
+  products    Product[]
+  status      EnumOrderStatus?
+  supplier    Supplier?        @relation(fields: [supplierId], references: [id])
+  supplierId  String?
+  totalAmount Float?
+  updatedAt   DateTime         @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+enum EnumOrderStatus {
+  Option1
+}
